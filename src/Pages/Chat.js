@@ -1,15 +1,16 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
-import {address_server_ai} from '../diverse.js';
+import {address_server, address_server_ai} from '../diverse.js';
 import {arObNameToken} from '../variables.js';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../Components/Navbar.js';
 import ChatInput from '../Components/ChatInput.js';
 import {addParamInUrl, getParamFromUrl, deleteParamFromUrl} from '../diverse.js';
 import Searchbar from '../Components/Searchbar.js';
+import { v4 as uuidv4 } from 'uuid';
 
-const Chat = () => {
+const Chat = (props) => {
 
   const [input, setInput] = useState('');
   const [arMesaje, setArMesaje] = useState([]);
@@ -20,6 +21,19 @@ const Chat = () => {
     if(comp)setCompany(comp);
   }, [])
 
+  function create_and_add_idconv(){
+    const id_conv = uuidv4().slice(0 , 10);
+    addParamInUrl("id_conv", id_conv);
+    return id_conv;
+  }
+
+  function add_conv_in_db(uid, id_conv, token){
+    axios.post(`${address_server}/add_conv_in_db`, {
+      uid, id_conv, token
+    }).then((data)=>{
+      console.log(data.data);
+    })
+  }
 
 
   function sendMes(){
@@ -28,6 +42,17 @@ const Chat = () => {
       "intrebare": input, 
       "token": company
     }).then((data)=>{
+      let id_conv = '';
+      
+      if(props.user){
+        if(!getParamFromUrl("id_conv")){
+          id_conv = create_and_add_idconv();
+          add_conv_in_db(props.user.uid, id_conv, company);
+        }else{
+          id_conv = getParamFromUrl("id_conv");
+        }
+      }
+
       setArMesaje((prev)=> {return [...prev, 
         {type: 'intrebare', mes: input}, {type:"raspuns", mes: data.data}
       ]})
@@ -78,7 +103,7 @@ const Chat = () => {
       
       
       :<div> 
-        <Navbar/>
+        <Navbar user={props.user} setUser={props.setUser} />
         <div className="min-h-full">
           
 

@@ -25,7 +25,7 @@ async function createAccount(){
         const result = await  signInWithPopup(auth, provider);
         const user = result.user;
         const {uid, email , displayName} = user;
-        return {type: true, data: {uid, email , displayName}};
+        return {type: true, data: {uid, email , displayName}, user: user};
     }catch(err){
         return {type: false, err: err};
     }
@@ -34,7 +34,7 @@ async function createAccount(){
 
 
 
-async function sign_out(auth){
+async function sign_out(){
     try{
         await signOut(auth);
         return {type: true};
@@ -50,10 +50,8 @@ async function deleteAccount(user){
         return {type: true};
     }catch(err){
         return {type: false, err: err};
-    }
-    
+    }   
 }
-
 
 export {
     createAccount, deleteAccount, sign_out

@@ -24,6 +24,10 @@ function deleteParamFromUrl(nameParam){
 
 ///////////////////////////////////////////////////
 
+//Fac o functei care face o noua conversatie!!!!!!!!
+
+////////////////////////////////////////////////////
+
 
 export {address_server, address_server_ai, 
     addParamInUrl, getParamFromUrl, deleteParamFromUrl,
