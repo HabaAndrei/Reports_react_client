@@ -27,6 +27,7 @@ const Navbar = (props) => {
           if(ob.name === 'Log out' || ob.name === 'Connect with google')return;
           arObNou.push(ob);
         })
+
         return [...arObNou, {name: 'Connect with google'}];
       })
   
@@ -34,19 +35,31 @@ const Navbar = (props) => {
       setNavigation((prev)=>{
         let arObNou = [];
         prev.forEach((ob)=>{
-          if(ob.name === 'Connect with google' || ob.name === 'Log out')return;
+          if(ob.name === 'Connect with google' || ob.name === 'Log out' 
+            || ob.name === 'Conversatii' || ob.name === 'Conversatie noua'
+          )return;
           arObNou.push(ob);
         })
-        return [...arObNou, {name: "Log out"}];
+        return [...arObNou,{name: "Conversatii"}, {name: 'Conversatie noua'},{name: "Log out"}, ];
       })
     }
+
   }, [props.user]);
 
-  
 
   async function log_out(){
     let rez = await sign_out();
-    if(rez.type)props.setUser(false);
+    if(rez.type){
+      props.setUser(false)
+      setNavigation((prev)=>{
+        let arNou = [];
+        prev.forEach((ob)=>{
+          if(ob.name === 'Conversatii' || ob.name === 'Conversatie noua')return;
+          arNou.push(ob);
+        })
+        return [...arNou]
+      })
+    };
   }  
   
   async function create_accout(){
@@ -57,14 +70,14 @@ const Navbar = (props) => {
   return (
 
     
-  <Disclosure as="nav" className="bg-gray-800">
+    <Disclosure as="nav" className="bg-gray-800">
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex h-16 items-center justify-between">
         <div className="flex items-center">
           <div className="flex-shrink-0">
             <img
               alt="Your Company"
-              src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500"
+              src="../logo.jpg"
               className="h-8 w-8"
             />
           </div>
@@ -82,11 +95,38 @@ const Navbar = (props) => {
                   </button>
                 }else if(item.name === 'Log out'){
                   return <button
-                    onClick={()=>{log_out()}}
+                    onClick={()=>{log_out(); navigate('/')}}
                     key={index}
                     className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
                   >
                   {item.name}
+                  </button>
+                }else if(item.name === 'Conversatii'){
+
+                  return <button
+                    onClick={()=>{
+                      if(!props.setModalIsOpen)return;
+                      props.setModalIsOpen({type:true, data:{
+                        request: 'getAllConversations',
+                        uid: props.user.uid
+                      }})
+                    }}
+                    key={index}
+                    className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
+                  >
+                  {item.name} 
+                  </button>
+                
+                }else if(item.name === 'Conversatie noua'){
+                  return <button
+                    onClick={()=>{
+                      if(!props.newChat)return;
+                      props.newChat();
+                    }}
+                    key={index}
+                    className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
+                  >
+                  {item.name} 
                   </button>
                 }else{
                   return <button
@@ -96,7 +136,6 @@ const Navbar = (props) => {
                   >
                   {item.name}
                   </button>
-
                 }
               })}
             </div>
@@ -117,7 +156,7 @@ const Navbar = (props) => {
 
     <DisclosurePanel className="md:hidden">
       <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
-        {navigation.map((item, index) => {
+        {navigation.map((item, index) => {                
           if(item.name === "Connect with google"){
             return <DisclosureButton
             onClick={()=>{create_accout()}}
@@ -127,21 +166,49 @@ const Navbar = (props) => {
             {item.name}
             </DisclosureButton>
           }else if(item.name === 'Log out'){
-            return <button
-              onClick={()=>{log_out()}}
+            return <DisclosureButton
+              onClick={()=>{log_out(); navigate('/')}}
               key={index}
               className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
             >
             {item.name}
+            </DisclosureButton>
+          }else if(item.name === 'Conversatii'){
+
+            return <button
+              onClick={()=>{
+                if(!props.setModalIsOpen)return;
+                props.setModalIsOpen({type:true, data:{
+                  request: 'getAllConversations',
+                  uid: props.user.uid
+                }})
+              }}
+              key={index}
+              className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
+            >
+            {item.name} 
+            </button>
+          
+          }else if(item.name === 'Conversatie noua'){
+            return <button
+              onClick={()=>{
+                if(!props.newChat)return;
+                props.newChat();
+              }}
+              key={index}
+              className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
+            >
+            {item.name} 
             </button>
           }else{
-            return <button
+            return <DisclosureButton
               onClick={()=>navigate(item.href)}
               key={index}
               className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
             >
             {item.name}
-            </button>
+            </DisclosureButton>
+
           }
         })}
       </div>
