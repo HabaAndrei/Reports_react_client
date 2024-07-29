@@ -1,10 +1,10 @@
 import React from 'react'
-
+import {ReactComponent as Plus} from '../icons/plus.svg';
 const ChatInput = (props) => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                
+        <Plus onClick={props.newChat} style={{"cursor":  "pointer"}} />
         <div style={{"maxWidth": "600px", "width": '100%'}} >
             <div className="flex items-center px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-700">
                 <textarea 
@@ -27,3 +27,4 @@ const ChatInput = (props) => {
 }
 
 export default ChatInput
+

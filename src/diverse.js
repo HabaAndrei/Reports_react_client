@@ -1,8 +1,8 @@
+import axios from 'axios';
 
 
 const address_server = process.env.REACT_APP_ADDRESS_SERVER;
 const address_server_ai = process.env.REACT_APP_ADDRESS_SERVER_AI;
-
 
 ////////////////////////////////////////////////////////
 function addParamInUrl(nameParam, valueParam){
@@ -22,7 +22,21 @@ function deleteParamFromUrl(nameParam){
 }
 
 
+////////////////////////////////////////////
+function deruleazaInJos(id){
+    const element = document.getElementById(id);
+    element.scrollTop = element.scrollHeight;
+  
+};
+
 ///////////////////////////////////////////////////
+
+function deleteChat(uid, id_conversatie){
+    if(!uid || !id_conversatie)return;
+    axios.post(`${address_server}/deleteChat`, {uid, id_conversatie}).then((data)=>{
+      console.log(data);
+    })
+  }
 
 //Fac o functei care face o noua conversatie!!!!!!!!
 
@@ -31,4 +45,5 @@ function deleteParamFromUrl(nameParam){
 
 export {address_server, address_server_ai, 
     addParamInUrl, getParamFromUrl, deleteParamFromUrl,
+    deruleazaInJos, deleteChat
 }

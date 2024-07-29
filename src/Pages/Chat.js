@@ -4,10 +4,11 @@ import axios from 'axios';
 import {address_server, address_server_ai} from '../diverse.js';
 import Navbar from '../Components/Navbar.js';
 import ChatInput from '../Components/ChatInput.js';
-import {addParamInUrl, getParamFromUrl, deleteParamFromUrl} from '../diverse.js';
+import {addParamInUrl, getParamFromUrl, deleteParamFromUrl, deruleazaInJos} from '../diverse.js';
 import Searchbar from '../Components/Searchbar.js';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from '../Components/Modal.js';
+import {arObNameToken} from '../variables.js'
 
 const Chat = (props) => {
 
@@ -15,7 +16,19 @@ const Chat = (props) => {
   const [arMesaje, setArMesaje] = useState([]);
   const [company, setCompany] = useState(false);
   const [modalIsOpen, setModalIsOpen] = useState({type:false});
+  const [numeCompanie, setNumeCompanie] = useState(false);
+  const [isLoading, setIsLoanding] = useState(false);
 
+  useEffect(()=>{
+    if(!company)return;
+    arObNameToken.forEach((ob)=>{
+      if(ob.token === company){setNumeCompanie(ob.nume);  return; }
+    })
+  }, [company]);
+
+  useEffect(()=>{
+    if(arMesaje.length)deruleazaInJos('scrollJos');
+  }, [arMesaje])
 
 
   
@@ -64,7 +77,6 @@ const Chat = (props) => {
   };
 
   function add_conv_in_db(uid, id_conv, token){
-    console.log( uid, id_conv, token);
     axios.post(`${address_server}/add_conv_in_db`, {
       uid, id_conv, token
     }).then((data)=>{
@@ -81,13 +93,24 @@ const Chat = (props) => {
   }
 
   function sendMes(){
+    if(isLoading)return;
+
+    let input_var = input;
+    setInput('');
+    setIsLoanding(true);
+
+
+
+    setArMesaje((prev)=>{
+      return [...prev, {type: 'intrebare', mes: input_var}, {type: 'loading'}]
+    })
     axios.post(`${address_server_ai}/send_mes`, {
       "context" : arMesaje.slice(-7),
-      "intrebare": input, 
+      "intrebare": input_var, 
       "token": company
     }).then((data)=>{
+      setIsLoanding(false);
       let id_conv = '';
-      
       if(props.user){
         if(!getParamFromUrl("id_conv")){
           id_conv = create_and_add_idconv();
@@ -96,15 +119,16 @@ const Chat = (props) => {
           id_conv = getParamFromUrl("id_conv");
         }
 
-        console.log(props.user, 'se adauga in db ')
         add_mess_in_db({
-            question: {mesaj: input, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
+            question: {mesaj: input_var, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
             answer: {mesaj: data.data, tip_mesaj: 'raspuns', uid: props.user.uid, id_conversatie: id_conv, token: company}
         })
       }
 
-      setArMesaje((prev)=> {return [...prev, 
-        {type: 'intrebare', mes: input}, {type:"raspuns", mes: data.data}
+      setArMesaje((prev)=> {
+        prev.pop();
+        return [...prev, 
+        {type:"raspuns", mes: data.data}
       ]})
     }).catch((err)=>{
       console.log(err);
@@ -116,7 +140,7 @@ const Chat = (props) => {
     <div>
 
       <Modal  modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
-        user={props.user} putDataInUrl={putDataInUrl}
+        user={props.user} putDataInUrl={putDataInUrl} 
         getMessFromId_conv={getMessFromId_conv}
       />
 
@@ -130,24 +154,32 @@ const Chat = (props) => {
         <div className='div_1' >
           <Navbar user={props.user} setUser={props.setUser}
           modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
-          newChat={newChat}
           />
         </div>
 
 
-        <div className='div_2' >
-          <div>
+        <div className='div_2' id='scrollJos'>
+          <div className='divNume' >
+            <p>{company}{' - '}{numeCompanie}</p>  
+          </div>
+          <div className='divMesaje' >
             {arMesaje.map((ob, index)=>{
               if(ob.type === 'intrebare'){
                 return <div key={index} className="flex items-start gap-2.5 marginDreaptaCovAi justify-end">
-                  <div className="flex  max-w-[400px]  p-4 border-gray-200 rounded-l-xl rounded-tr-xl dark:bg-gray-700">
-                    <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">{ob.mes}</p>
+                  <div className="flex  max-w-[800px]  p-4 border-gray-200 rounded-l-xl rounded-tr-xl dark:bg-gray-700">
+                    <p className="text font-normal py-2.5 text-gray-800 max-w-xl dark:text-white">{ob.mes}</p>
+                  </div>
+                </div>
+              }else if(ob.type === 'loading'){
+                return <div key={index}  className="flex items-start gap-2.5 marginStangaCovAi ">
+                  <div className="flex  max-w-[800px] p-4 border-gray-200  rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                    <div className="px-3 py-1 text-xs font-medium leading-none text-center text-blue-800 bg-blue-200 rounded-full animate-pulse dark:bg-blue-900 dark:text-blue-200">loading...</div>
                   </div>
                 </div>
               }else{
-                return <div key={index} className="flex items-start gap-2.5 marginStangaCovAi "> 
-                  <div className="flex  max-w-[400px] p-4 border-gray-200  rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                    <p className="whitespace-pre-wrap max-w-md space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">{ob.mes}</p>   
+                return <div key={index}  className="flex items-start gap-2.5 marginStangaCovAi "> 
+                  <div className="flex  max-w-[800px] p-4 border-gray-200  rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                    <p className="whitespace-pre-wrap max-w-xl space-y-1 text-gray-500 list-disc list-inside dark:text-gray-400">{ob.mes}</p>   
                   </div>
                 </div>
               }
@@ -156,7 +188,7 @@ const Chat = (props) => {
         </div>
 
         <div className='div_3' >
-          <ChatInput sendMes={sendMes}  input={input} setInput={setInput} />
+          <ChatInput sendMes={sendMes}  input={input} setInput={setInput} newChat={newChat}/>
         </div>
       </div>
       
@@ -165,11 +197,8 @@ const Chat = (props) => {
     :<div> 
       <Navbar user={props.user} setUser={props.setUser} 
           modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
-          newChat={newChat}
       />
       <div className="min-h-full">
-        
-
         <main>
           <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
             <Searchbar  setCompany={setCompany} />
@@ -184,5 +213,7 @@ const Chat = (props) => {
 export default Chat
 
 
-// trebuie sa fac cumva sa ii arat mereu care este compania cu care vorbeste
-// <== fac asta sa ii arat in stanga sus unde e poza
+
+
+// rezolv sa sterg toate si din modal care  e apelat din home
+// daca voi sterge conversatia in care ma aflu, sa sterg si din id si mesajele aratate pe pagina

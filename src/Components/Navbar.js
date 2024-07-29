@@ -3,8 +3,6 @@ import { useState } from 'react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useNavigate } from 'react-router-dom';
-import { createAccount, deleteAccount, sign_out} from '../Firebase.js';
-
 
 
 const Navbar = (props) => {
@@ -12,60 +10,43 @@ const Navbar = (props) => {
   const navigate = useNavigate();
 
 
+
   const [navigation, setNavigation] = useState([
-    { name: 'Home', href: '/'},
+    { name: 'Acasa', href: '/'},
     { name: 'Chat', href: '/chat'},
+    {name: 'Contul meu'}
   ])
 
   useEffect(()=>{
-
 
     if(!props.user){
       setNavigation((prev)=>{
         let arObNou = [];
         prev.forEach((ob)=>{
-          if(ob.name === 'Log out' || ob.name === 'Connect with google')return;
+          if(ob.name === 'Conversatii')return;
           arObNou.push(ob);
         })
-
-        return [...arObNou, {name: 'Connect with google'}];
+        return [...arObNou];
       })
   
     }else{
       setNavigation((prev)=>{
         let arObNou = [];
         prev.forEach((ob)=>{
-          if(ob.name === 'Connect with google' || ob.name === 'Log out' 
-            || ob.name === 'Conversatii' || ob.name === 'Conversatie noua'
+          if(ob.name === 'Conversatii' 
           )return;
           arObNou.push(ob);
         })
-        return [...arObNou,{name: "Conversatii"}, {name: 'Conversatie noua'},{name: "Log out"}, ];
+        return [...arObNou,{name: "Conversatii"} ];
       })
     }
 
   }, [props.user]);
 
 
-  async function log_out(){
-    let rez = await sign_out();
-    if(rez.type){
-      props.setUser(false)
-      setNavigation((prev)=>{
-        let arNou = [];
-        prev.forEach((ob)=>{
-          if(ob.name === 'Conversatii' || ob.name === 'Conversatie noua')return;
-          arNou.push(ob);
-        })
-        return [...arNou]
-      })
-    };
-  }  
+ 
   
-  async function create_accout(){
-    let rez = await createAccount();
-    if(rez)props.setUser(rez.user);
-  }
+
 
   return (
 
@@ -84,25 +65,7 @@ const Navbar = (props) => {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navigation.map((item, index) => {
-                
-                if(item.name === "Connect with google"){
-                  return <button
-                  onClick={()=>{create_accout()}}
-                  key={index}
-                  className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
-                  >
-                  {item.name}
-                  </button>
-                }else if(item.name === 'Log out'){
-                  return <button
-                    onClick={()=>{log_out(); navigate('/')}}
-                    key={index}
-                    className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
-                  >
-                  {item.name}
-                  </button>
-                }else if(item.name === 'Conversatii'){
-
+                if(item.name === 'Conversatii'){
                   return <button
                     onClick={()=>{
                       if(!props.setModalIsOpen)return;
@@ -116,13 +79,17 @@ const Navbar = (props) => {
                   >
                   {item.name} 
                   </button>
-                
-                }else if(item.name === 'Conversatie noua'){
+                }else if(item.name === 'Contul meu'){
                   return <button
-                    onClick={()=>{
-                      if(!props.newChat)return;
-                      props.newChat();
-                    }}
+                  onClick={()=>{
+                    
+                    if(!props.setModalIsOpen)return;
+                    props.setModalIsOpen({type:true, data:{
+                      request: 'getDataUser',
+                      'props.user' : props.user,
+                      "props.setUser" : props.setUser 
+                    }})
+                  }}
                     key={index}
                     className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
                   >
@@ -157,23 +124,7 @@ const Navbar = (props) => {
     <DisclosurePanel className="md:hidden">
       <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
         {navigation.map((item, index) => {                
-          if(item.name === "Connect with google"){
-            return <DisclosureButton
-            onClick={()=>{create_accout()}}
-            key={index}
-            className={'text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium'}
-            >
-            {item.name}
-            </DisclosureButton>
-          }else if(item.name === 'Log out'){
-            return <DisclosureButton
-              onClick={()=>{log_out(); navigate('/')}}
-              key={index}
-              className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
-            >
-            {item.name}
-            </DisclosureButton>
-          }else if(item.name === 'Conversatii'){
+          if(item.name === 'Conversatii'){
 
             return <button
               onClick={()=>{
@@ -189,17 +140,24 @@ const Navbar = (props) => {
             {item.name} 
             </button>
           
-          }else if(item.name === 'Conversatie noua'){
+          }else if(item.name === 'Contul meu'){
+            
             return <button
-              onClick={()=>{
-                if(!props.newChat)return;
-                props.newChat();
-              }}
+            onClick={()=>{
+              if(!props.setModalIsOpen)return;
+              props.setModalIsOpen({type:true, data:{
+                request: 'getDataUser',
+                'props.user' : props.user,
+                "props.setUser" : props.setUser
+              }})
+            }}
               key={index}
               className={'text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium'}
             >
             {item.name} 
             </button>
+          
+          
           }else{
             return <DisclosureButton
               onClick={()=>navigate(item.href)}
