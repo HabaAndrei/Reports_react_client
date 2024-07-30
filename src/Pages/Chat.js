@@ -35,7 +35,7 @@ const Chat = (props) => {
   useEffect(()=>{
     const comp = getParamFromUrl("company");
     if(comp)setCompany(comp);
-
+    
     const id_conv = getParamFromUrl("id_conv");
     if(props.user && id_conv && comp){
       getMessFromId_conv(id_conv, props.user.uid, comp);
@@ -126,10 +126,12 @@ const Chat = (props) => {
       }
 
       setArMesaje((prev)=> {
-        prev.pop();
-        return [...prev, 
-        {type:"raspuns", mes: data.data}
-      ]})
+        let arNou = [];
+        prev.forEach((ob)=>{
+          if(ob.type === 'loading'){arNou.push({type:'raspuns', mes: data.data}); return};
+          arNou.push({type: ob.type, mes: ob.mes});
+        })
+        return [...arNou]});
     }).catch((err)=>{
       console.log(err);
     })    
@@ -142,6 +144,8 @@ const Chat = (props) => {
       <Modal  modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
         user={props.user} putDataInUrl={putDataInUrl} 
         getMessFromId_conv={getMessFromId_conv}
+        setArMesaje={setArMesaje}
+        setCompany={setCompany}
       />
 
       {/* The page =>>>>  */}
@@ -160,7 +164,7 @@ const Chat = (props) => {
 
         <div className='div_2' id='scrollJos'>
           <div className='divNume' >
-            <p>{company}{' - '}{numeCompanie}</p>  
+            <p>Simbol: {company}{' - '} Nume: {numeCompanie}</p>  
           </div>
           <div className='divMesaje' >
             {arMesaje.map((ob, index)=>{
@@ -214,6 +218,4 @@ export default Chat
 
 
 
-
-// rezolv sa sterg toate si din modal care  e apelat din home
-// daca voi sterge conversatia in care ma aflu, sa sterg si din id si mesajele aratate pe pagina
+// adaug titlul sus si il pun pe centru in linie

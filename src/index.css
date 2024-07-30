@@ -53,9 +53,7 @@ code {
   position: absolute;
   font-size: 14px;
   font-weight: bold;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: rgb(236, 234, 234);
+  margin-left: 10px;
 }
 .divMesaje{
   margin-top: 15px;

@@ -34,7 +34,7 @@ function deruleazaInJos(id){
 function deleteChat(uid, id_conversatie){
     if(!uid || !id_conversatie)return;
     axios.post(`${address_server}/deleteChat`, {uid, id_conversatie}).then((data)=>{
-      console.log(data);
+    //   console.log(data);
     })
   }
 

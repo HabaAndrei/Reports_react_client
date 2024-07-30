@@ -2,15 +2,18 @@ import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import axios from 'axios';
-import { address_server, deleteChat } from '../diverse';
+import { address_server, deleteChat, getParamFromUrl } from '../diverse';
 import {createAccount, deleteAccount, sign_out} from '../Firebase.js';
 import {ReactComponent as Google} from '../icons/google.svg';
 import {ReactComponent as Trash} from '../icons/trash.svg';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
-
+import {useLocation, useNavigate } from 'react-router-dom';
 
 
 const Modal = (props) => {
+
+    const navigate = useNavigate();
+    const {pathname} = useLocation();
 
 
     const [arConv, setArConv] = useState([]);
@@ -27,9 +30,9 @@ const Modal = (props) => {
             const uid = props.modalIsOpen?.data?.uid;
             getAllConversations(uid);
         }else if(props.modalIsOpen?.data?.request === "getDataUser"){
-            // console.log(props.modalIsOpen?.data)
+            // console.log(props.modalIsOpen?.data);
         }else if(props.modalIsOpen?.data?.request === 'deleteConv'){
-            console.log(props.modalIsOpen?.data);
+            // console.log(props.modalIsOpen?.data);
         }
 
     }, [props.modalIsOpen]);
@@ -45,13 +48,23 @@ const Modal = (props) => {
 
     async function deleteAcc(){
         let rez = await deleteAccount(props.modalIsOpen?.data['props.user']);
-        if(rez.type)props.modalIsOpen?.data['props.setUser'](false);
+        if(rez.type){
+            props.modalIsOpen?.data['props.setUser'](false);
+            props?.setArMesaje([]);
+            props?.setCompany(false);
+            navigate('/chat');
+        }
     }
 
     async function log_out(){
         let rez = await sign_out();
-        if(rez.type)props.modalIsOpen?.data['props.setUser'](false);
-
+        if(rez.type){
+            props.modalIsOpen?.data['props.setUser'](false);
+            props?.setArMesaje([]);
+            props?.setCompany(false);
+            navigate('/chat');
+        }
+        
     }
 
     function getAllConversations(uid){
@@ -92,8 +105,13 @@ const Modal = (props) => {
                                             style={{fontSize: '14px', fontWeight: 'bold'}}
                                             className='hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer'
                                             onClick={()=>{
-                                                props.getMessFromId_conv(ob.id_conversatie, props.user.uid, ob.token);
-                                                props.putDataInUrl(ob.token, ob.id_conversatie);
+                                                if(pathname === '/'){
+                                                    navigate(`/chat?company=${ob.token}&id_conv=${ob.id_conversatie}`);
+                                                }else if(pathname === '/chat'){
+
+                                                    props.getMessFromId_conv(ob.id_conversatie, props.user.uid, ob.token);
+                                                    props.putDataInUrl(ob.token, ob.id_conversatie);
+                                                }
                                             }}
                                             >{ob.mesaj.slice(0, 15)}</span> -
                                             
@@ -124,7 +142,10 @@ const Modal = (props) => {
                                         className="mt-2 border border-gray-300 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
                                         >
                                             <li
-                                            onClick={()=>log_out()}
+                                            onClick={()=>{
+                                                log_out();
+                                                
+                                            }}
                                             className="p-2 hover:bg-gray-200 dark:hover:bg-gray-600 cursor-pointer flex justify-between"
                                             >
                                                 Deconecteaza-te 
@@ -161,6 +182,14 @@ const Modal = (props) => {
                                     <p>{props.modalIsOpen?.data?.mesaj} - {props.modalIsOpen?.data?.token}</p>
                                     <button style={{fontSize: '15px', fontWeight:'bold', cursion: 'pointer'}} 
                                     onClick={()=>{
+                                        if(pathname === '/chat' && 
+                                            getParamFromUrl('id_conv') === props.modalIsOpen?.data?.id_conversatie &&
+                                            getParamFromUrl('company') === props.modalIsOpen?.data?.token
+                                         ){
+                                            props?.setArMesaje([]);
+                                            props?.setCompany(false);
+                                            navigate('/chat');
+                                        }
                                         deleteChat(props.modalIsOpen?.data?.uid, props.modalIsOpen?.data?.id_conversatie);
                                         props.setModalIsOpen({type: false});
                                     }}
