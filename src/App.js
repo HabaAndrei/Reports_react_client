@@ -18,12 +18,15 @@ const App = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
+        console.log(user);
       }else{
         setUser(false);
       } 
 
     });
   }, []);
+
+ 
 
 
   return (

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import axios from 'axios';
 import { address_server, deleteChat, getParamFromUrl } from '../diverse';
-import {createAccount, deleteAccount, sign_out} from '../Firebase.js';
+import {createAccount, deleteAccount, sign_out, idTokenFirebase} from '../Firebase.js';
 import {ReactComponent as Google} from '../icons/google.svg';
 import {ReactComponent as Trash} from '../icons/trash.svg';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
@@ -49,26 +49,38 @@ const Modal = (props) => {
     async function deleteAcc(){
         let rez = await deleteAccount(props.modalIsOpen?.data['props.user']);
         if(rez.type){
-            props.modalIsOpen?.data['props.setUser'](false);
-            props?.setArMesaje([]);
-            props?.setCompany(false);
-            navigate('/chat');
+            if(pathname === '/'){
+                props.modalIsOpen?.data['props.setUser'](false);
+
+            }else{
+                props.modalIsOpen?.data['props.setUser'](false);
+                props?.setArMesaje([]);
+                props?.setCompany(false);
+                navigate('/chat');
+            }
         }
     }
 
     async function log_out(){
         let rez = await sign_out();
         if(rez.type){
-            props.modalIsOpen?.data['props.setUser'](false);
-            props?.setArMesaje([]);
-            props?.setCompany(false);
-            navigate('/chat');
+            if(pathname === '/'){
+                props.modalIsOpen?.data['props.setUser'](false);
+
+            }else{
+                props.modalIsOpen?.data['props.setUser'](false);
+                props?.setArMesaje([]);
+                props?.setCompany(false);
+                navigate('/chat');
+            }
         }
         
     }
 
-    function getAllConversations(uid){
-        axios.post(`${address_server}/getAllConversations`, {uid}).then((data)=>{
+    async function getAllConversations(uid){
+        let rez  = await idTokenFirebase();
+        let user_token = rez?.token;
+        axios.post(`${address_server}/getAllConversations`, {uid, user_token}).then((data)=>{
             if(data.data.type){
                 setArConv(data.data.data)
             }

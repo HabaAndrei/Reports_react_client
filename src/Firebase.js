@@ -53,6 +53,38 @@ async function deleteAccount(user){
     }   
 }
 
+//////////////////////////////
+
+// setTimeout(()=>{
+//     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
+//         console.log(idToken);
+//     }).catch(function(error) {
+//         // Handle error
+//     });
+// }, 3000000);
+
+
+async function idTokenFirebase(){
+
+    try{
+        let token = await getAuth().currentUser.getIdToken(true);
+        if(token){
+            return {type:true, token: token}
+        }else{
+            return {type: false}
+        }
+    }catch(err){
+        return {type: false, err: err};
+    }
+}
+
+// setTimeout(async  ()=>{
+//     let rez = await idTokenFirebase();
+//     console.log(rez)
+// }, 2000);
+//////////////////////////////
+
 export {
-    createAccount, deleteAccount, sign_out
+    createAccount, deleteAccount, sign_out,
+    idTokenFirebase
 }
