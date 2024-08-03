@@ -4,7 +4,7 @@ import axios from 'axios';
 import {address_server, address_server_ai} from '../diverse.js';
 import Navbar from '../Components/Navbar.js';
 import ChatInput from '../Components/ChatInput.js';
-import {addParamInUrl, getParamFromUrl, deleteParamFromUrl, deruleazaInJos} from '../diverse.js';
+import {addParamInUrl, getParamFromUrl, deleteParamFromUrl, deruleazaInJos, get_ip_address, manage_question_FU} from '../diverse.js';
 import Searchbar from '../Components/Searchbar.js';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from '../Components/Modal.js';
@@ -92,8 +92,22 @@ const Chat = (props) => {
     })
   }
 
-  function sendMes(){
+  async function sendMes(){
     if(isLoading)return;
+    if(!input?.length)return;
+
+    if(!props.user){
+      let ip  = await get_ip_address();
+      if(ip){
+        let rez_query = await manage_question_FU(ip);
+        if(!rez_query){alert('nu mai ai intrebari gratuite, fa ti cont!!!!!'); return}
+      }else{
+        console.log('nu am putut sa luam ip-ul');
+        return;
+      }
+      return ;
+    }
+
 
     let input_var = input;
     setInput('');

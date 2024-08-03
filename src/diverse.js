@@ -38,12 +38,21 @@ function deleteChat(uid, id_conversatie){
     })
   }
 
-//Fac o functei care face o noua conversatie!!!!!!!!
+async function get_ip_address(){
+    let rez = await axios.get('https://api.ipify.org?format=json')
+    let ip = rez?.data?.ip;
+    if(ip)return ip
+    else return null
+    
+}
 
-////////////////////////////////////////////////////
-
+async function manage_question_FU(ip){
+    let rez = await axios.post(`${address_server}/manage_question_FU`, {ip})
+    return rez.data?.data?.[0]?.manage_question ;
+}
 
 export {address_server, address_server_ai, 
     addParamInUrl, getParamFromUrl, deleteParamFromUrl,
-    deruleazaInJos, deleteChat
+    deruleazaInJos, deleteChat,
+    get_ip_address, manage_question_FU
 }
