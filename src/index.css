@@ -60,6 +60,9 @@ code {
   flex: 1;
 }
 
+.notifications::-webkit-scrollbar {
+  display: none;
+}
 
 @media (min-width: 800px){
   

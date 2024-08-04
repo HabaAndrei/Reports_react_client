@@ -51,8 +51,14 @@ async function manage_question_FU(ip){
     return rez.data?.data?.[0]?.manage_question ;
 }
 
+function addNotification(func, type, mes){
+    func((prev)=>{
+        return [...prev, {type, mes}];
+    })
+}
+
 export {address_server, address_server_ai, 
     addParamInUrl, getParamFromUrl, deleteParamFromUrl,
     deruleazaInJos, deleteChat,
-    get_ip_address, manage_question_FU
+    get_ip_address, manage_question_FU, addNotification
 }

@@ -10,6 +10,13 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 const App = () => {
 
   const [user, setUser] = useState(false);
+
+  const [arNotifications, setArNotifications] = useState([
+    // {type: 'succes', mes: 'OKOKOK'}, {type: 'danger'}, {type: 'warning'},
+    // {type: 'succes'}, {type: 'danger'}, {type: 'warning'},
+    // {type: 'succes'}, {type: 'danger'}, {type: 'warning'}
+
+  ]);
   
   
   
@@ -18,7 +25,7 @@ const App = () => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        console.log(user);
+        // console.log(user);
       }else{
         setUser(false);
       } 
@@ -33,8 +40,15 @@ const App = () => {
     <div  >
       <Router>
         <Routes>
-          <Route path='/' element={<Home user={user} setUser={setUser} />} />
-          <Route path='/chat' element={<Chat user={user} setUser={setUser} />} />
+          <Route path='/'  
+          element={<Home user={user} setUser={setUser} 
+          arNotifications={arNotifications} setArNotifications={setArNotifications}
+          />} />
+
+          <Route path='/chat' 
+          element={<Chat user={user} setUser={setUser}
+          arNotifications={arNotifications} setArNotifications={setArNotifications}
+          />} />
         </Routes>
       </Router>
     </div>

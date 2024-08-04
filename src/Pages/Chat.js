@@ -9,6 +9,7 @@ import Searchbar from '../Components/Searchbar.js';
 import { v4 as uuidv4 } from 'uuid';
 import Modal from '../Components/Modal.js';
 import {arObNameToken} from '../variables.js'
+import Notification from '../Components/Notification.js';
 
 const Chat = (props) => {
 
@@ -160,7 +161,14 @@ const Chat = (props) => {
         getMessFromId_conv={getMessFromId_conv}
         setArMesaje={setArMesaje}
         setCompany={setCompany}
+        arNotifications={props.arNotifications} setArNotifications={props.setArNotifications}
       />
+
+
+      <div>
+        <Notification  arNotifications={props.arNotifications} setArNotifications={props.setArNotifications} />
+      </div>
+
 
       {/* The page =>>>>  */}
 
@@ -172,6 +180,7 @@ const Chat = (props) => {
         <div className='div_1' >
           <Navbar user={props.user} setUser={props.setUser}
           modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
+          arNotifications={props.arNotifications} setArNotifications={props.setArNotifications}
           />
         </div>
 
@@ -215,6 +224,7 @@ const Chat = (props) => {
     :<div> 
       <Navbar user={props.user} setUser={props.setUser} 
           modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
+          arNotifications={props.arNotifications} setArNotifications={props.setArNotifications}
       />
       <div className="min-h-full">
         <main>
@@ -230,6 +240,3 @@ const Chat = (props) => {
 
 export default Chat
 
-
-
-// adaug titlul sus si il pun pe centru in linie

@@ -55,15 +55,6 @@ async function deleteAccount(user){
 
 //////////////////////////////
 
-// setTimeout(()=>{
-//     getAuth().currentUser.getIdToken(/* forceRefresh */ true).then(function(idToken) {
-//         console.log(idToken);
-//     }).catch(function(error) {
-//         // Handle error
-//     });
-// }, 3000000);
-
-
 async function idTokenFirebase(){
 
     try{
@@ -78,10 +69,6 @@ async function idTokenFirebase(){
     }
 }
 
-// setTimeout(async  ()=>{
-//     let rez = await idTokenFirebase();
-//     console.log(rez)
-// }, 2000);
 //////////////////////////////
 
 export {

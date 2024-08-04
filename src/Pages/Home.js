@@ -1,10 +1,9 @@
 import React from 'react'
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
-import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Navbar from '../Components/Navbar.js';
 import Searchbar from '../Components/Searchbar.js';
 import Modal from '../Components/Modal.js';
+import Notification from '../Components/Notification.js';
 
 const Home = (props) => {
 
@@ -14,14 +13,19 @@ const Home = (props) => {
   return (
     <div>
 
+      <div>
+        <Notification  arNotifications={props.arNotifications} setArNotifications={props.setArNotifications} />
+      </div>
+
 
       <Modal  modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
         user={props.user}
+        arNotifications={props.arNotifications} setArNotifications={props.setArNotifications}
       />
 
       <Navbar  user={props.user} setUser={props.setUser} 
         modalIsOpen={modalIsOpen} setModalIsOpen={setModalIsOpen}
-
+        arNotifications={props.arNotifications} setArNotifications={props.setArNotifications}
       />
       <div className="min-h-full">
         

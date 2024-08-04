@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
-import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
+import { Dialog, DialogBackdrop, DialogPanel } from '@headlessui/react'
 import axios from 'axios';
-import { address_server, deleteChat, getParamFromUrl } from '../diverse';
+import { address_server, deleteChat, getParamFromUrl, addNotification } from '../diverse';
 import {createAccount, deleteAccount, sign_out, idTokenFirebase} from '../Firebase.js';
 import {ReactComponent as Google} from '../icons/google.svg';
 import {ReactComponent as Trash} from '../icons/trash.svg';
@@ -14,17 +14,10 @@ const Modal = (props) => {
 
     const navigate = useNavigate();
     const {pathname} = useLocation();
-
-
     const [arConv, setArConv] = useState([]);
 
     useEffect(()=>{
         if(!props.modalIsOpen.type)return;
-
-        // {type:true, data:{
-        //     request: 'getAllConversations',
-        //     uid: props.user.uid
-        //   }}
 
         if(props.modalIsOpen?.data?.request === 'getAllConversations'){
             const uid = props.modalIsOpen?.data?.uid;
@@ -41,29 +34,36 @@ const Modal = (props) => {
     async function connect_with_google(){
         let rez = await createAccount();
         if(rez.type){
-            props.modalIsOpen?.data['props.setUser'](rez.user)
-        };
+            props.modalIsOpen?.data['props.setUser'](rez.user);
+            addNotification(props.setArNotifications, 'succes', 'Succes')
+        }else{
+            addNotification(props.setArNotifications, 'warning', 'Din pacat nu am reusit sa facem aceasta opertiune');
 
+        }
     }
 
     async function deleteAcc(){
         let rez = await deleteAccount(props.modalIsOpen?.data['props.user']);
         if(rez.type){
+            addNotification(props.setArNotifications, 'succes', 'Succes')
             if(pathname === '/'){
                 props.modalIsOpen?.data['props.setUser'](false);
-
             }else{
                 props.modalIsOpen?.data['props.setUser'](false);
                 props?.setArMesaje([]);
                 props?.setCompany(false);
                 navigate('/chat');
             }
+        }else{
+            addNotification(props.setArNotifications, 'warning', 'Din pacat nu am reusit sa facem aceasta opertiune');
         }
     }
 
     async function log_out(){
         let rez = await sign_out();
         if(rez.type){
+            addNotification(props.setArNotifications, 'succes', 'Succes')
+            
             if(pathname === '/'){
                 props.modalIsOpen?.data['props.setUser'](false);
 
@@ -73,6 +73,8 @@ const Modal = (props) => {
                 props?.setCompany(false);
                 navigate('/chat');
             }
+        }else{
+            addNotification(props.setArNotifications, 'warning', 'Din pacat nu am reusit sa facem aceasta opertiune');
         }
         
     }
@@ -83,6 +85,10 @@ const Modal = (props) => {
         axios.post(`${address_server}/getAllConversations`, {uid, user_token}).then((data)=>{
             if(data.data.type){
                 setArConv(data.data.data)
+            }
+        }).catch((err)=>{
+            if(err?.response?.status === 401){
+                addNotification(props.setArNotifications, 'danger', 'Neautorizat');
             }
         })
     }
