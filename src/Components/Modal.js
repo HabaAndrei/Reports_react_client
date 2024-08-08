@@ -38,7 +38,6 @@ const Modal = (props) => {
             addNotification(props.setArNotifications, 'succes', 'Succes')
         }else{
             addNotification(props.setArNotifications, 'warning', 'Din pacat nu am reusit sa facem aceasta opertiune');
-
         }
     }
 

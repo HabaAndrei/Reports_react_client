@@ -113,43 +113,68 @@ const Chat = (props) => {
     let input_var = input;
     setInput('');
     setIsLoanding(true);
-
-
-
     setArMesaje((prev)=>{
       return [...prev, {type: 'intrebare', mes: input_var}, {type: 'loading'}]
     })
-    axios.post(`${address_server_ai}/send_mes`, {
-      "context" : arMesaje.slice(-7),
-      "intrebare": input_var, 
-      "token": company
-    }).then((data)=>{
-      setIsLoanding(false);
-      let id_conv = '';
-      if(props.user){
-        if(!getParamFromUrl("id_conv")){
-          id_conv = create_and_add_idconv();
-          add_conv_in_db(props.user.uid, id_conv, company);
-        }else{
-          id_conv = getParamFromUrl("id_conv");
-        }
 
-        add_mess_in_db({
-            question: {mesaj: input_var, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
-            answer: {mesaj: data.data, tip_mesaj: 'raspuns', uid: props.user.uid, id_conversatie: id_conv, token: company}
-        })
+    fetch(`${address_server_ai}/send_mes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "responseType": "stream"
+      },
+      body: JSON.stringify({ "context" : arMesaje.slice(-7), "intrebare": input_var,  "token": company})
+    }).then((response)=>{
+
+      let reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      function readStream(){
+        console.log('se executa!!');
+        reader.read().then(({done, value})=>{
+          if(done){
+            console.log('este gataaa')
+          }else{
+            let cuv =  decoder.decode(value, {stream: true});
+            console.log(cuv, '----------');
+            readStream();
+          }
+        });
       }
+      readStream();
+    })
 
-      setArMesaje((prev)=> {
-        let arNou = [];
-        prev.forEach((ob)=>{
-          if(ob.type === 'loading'){arNou.push({type:'raspuns', mes: data.data}); return};
-          arNou.push({type: ob.type, mes: ob.mes});
-        })
-        return [...arNou]});
-    }).catch((err)=>{
-      console.log(err);
-    })    
+    // axios.post(`${address_server_ai}/send_mes`, {
+    //   "context" : arMesaje.slice(-7),
+    //   "intrebare": input_var, 
+    //   "token": company
+    // }).then((data)=>{
+    //   setIsLoanding(false);
+    //   let id_conv = '';
+    //   if(props.user){
+    //     if(!getParamFromUrl("id_conv")){
+    //       id_conv = create_and_add_idconv();
+    //       add_conv_in_db(props.user.uid, id_conv, company);
+    //     }else{
+    //       id_conv = getParamFromUrl("id_conv");
+    //     }
+
+    //     add_mess_in_db({
+    //         question: {mesaj: input_var, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
+    //         answer: {mesaj: data.data, tip_mesaj: 'raspuns', uid: props.user.uid, id_conversatie: id_conv, token: company}
+    //     })
+    //   }
+
+    //   setArMesaje((prev)=> {
+    //     let arNou = [];
+    //     prev.forEach((ob)=>{
+    //       if(ob.type === 'loading'){arNou.push({type:'raspuns', mes: data.data}); return};
+    //       arNou.push({type: ob.type, mes: ob.mes});
+    //     })
+    //     return [...arNou]});
+    // }).catch((err)=>{
+    //   console.log(err);
+    // })    
   }
 
   
