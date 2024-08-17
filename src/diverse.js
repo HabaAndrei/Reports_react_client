@@ -35,20 +35,31 @@ function deleteChat(uid, id_conversatie){
     if(!uid || !id_conversatie)return;
     axios.post(`${address_server}/deleteChat`, {uid, id_conversatie}).then((data)=>{
     //   console.log(data);
+    }).catch((err)=>{
+        console.log(err);
     })
   }
 
 async function get_ip_address(){
-    let rez = await axios.get('https://api.ipify.org?format=json')
-    let ip = rez?.data?.ip;
-    if(ip)return ip
-    else return null
+
+    try{
+        let rez = await axios.get('https://api.ipify.org?format=json')
+        let ip = rez?.data?.ip;
+        if(ip)return ip
+        else return null
+    }catch(err){
+        console.log(err);
+    }
     
 }
 
 async function manage_question_FU(ip){
-    let rez = await axios.post(`${address_server}/manage_question_FU`, {ip})
-    return rez.data?.data?.[0]?.manage_question ;
+    try{
+        let rez = await axios.post(`${address_server}/manage_question_FU`, {ip})
+        return rez.data?.data?.[0]?.manage_question ;
+    }catch(err){
+        console.log(err);
+    }
 }
 
 function addNotification(func, type, mes){

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
-import {address_server, address_server_ai} from '../diverse.js';
+import {address_server, address_server_ai, addNotification} from '../diverse.js';
 import Navbar from '../Components/Navbar.js';
 import ChatInput from '../Components/ChatInput.js';
 import {addParamInUrl, getParamFromUrl, deleteParamFromUrl, deruleazaInJos, get_ip_address, manage_question_FU} from '../diverse.js';
@@ -82,6 +82,9 @@ const Chat = (props) => {
       let ar = data.data.data;
       let arNou  = ar.map((ob)=>{return {type: ob.tip_mesaj, mes:ob.mesaj}})
       setArMesaje([...arNou]);
+    }).catch((err)=>{
+      console.log(err);
+      addNotification(props.setArNotifications, 'warning', 'Din pacate nu am reusit sa iti aratam mesajele')
     })
   }
 
@@ -97,6 +100,8 @@ const Chat = (props) => {
       uid, id_conv, token
     }).then((data)=>{
       // console.log(data.data);
+    }).catch((err)=>{
+      console.log(err);
     })
   }
 
@@ -105,6 +110,8 @@ const Chat = (props) => {
       obQuesAndAnsw
     }).then((data)=>{
       // console.log(data.data);
+    }).catch((err)=>{
+      console.log(err);
     })
   }
 
@@ -178,7 +185,10 @@ const Chat = (props) => {
         });
       }
       readStream();
-    })  
+    }).catch((err)=>{
+      console.log(err);
+      addNotification(props.setArNotifications, 'warning', 'Din pacat am intampinat o problema la generarea mesajului')
+    })
   }
 
   
@@ -197,9 +207,6 @@ const Chat = (props) => {
       <div>
         <Notification  arNotifications={props.arNotifications} setArNotifications={props.setArNotifications} />
       </div>
-
-
-      {/* The page =>>>>  */}
 
 
     {company ? 

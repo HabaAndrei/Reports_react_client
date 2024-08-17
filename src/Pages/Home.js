@@ -6,9 +6,8 @@ import Modal from '../Components/Modal.js';
 import Notification from '../Components/Notification.js';
 
 const Home = (props) => {
-
+  
   const [modalIsOpen, setModalIsOpen] = useState({type:false});
-
   
   return (
     <div>
