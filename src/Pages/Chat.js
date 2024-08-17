@@ -19,6 +19,7 @@ const Chat = (props) => {
   const [modalIsOpen, setModalIsOpen] = useState({type:false});
   const [numeCompanie, setNumeCompanie] = useState(false);
   const [isLoading, setIsLoanding] = useState(false);
+  const [arWithStream, setArWithStream] = useState({mes : '', isFinal : false});
 
   useEffect(()=>{
     if(!company)return;
@@ -29,7 +30,21 @@ const Chat = (props) => {
 
   useEffect(()=>{
     if(arMesaje.length)deruleazaInJos('scrollJos');
-  }, [arMesaje])
+  }, [arMesaje]);
+
+  useEffect(()=>{
+    if(!arWithStream.isFinal && arWithStream.mes.length){
+      setArMesaje((arMes)=>{
+        return [...arMes.slice(0, arMes.length - 1), {type:'raspuns', mes: arWithStream.mes}]
+      })
+
+    }else if(arWithStream.mes.length && arWithStream.isFinal){
+      setArMesaje((arMes)=>{
+        return [...arMes.slice(0, arMes.length - 1), {type:'raspuns', mes: arWithStream.mes}]
+      })
+    }
+
+  }, [arWithStream])
 
 
   
@@ -125,56 +140,45 @@ const Chat = (props) => {
       },
       body: JSON.stringify({ "context" : arMesaje.slice(-7), "intrebare": input_var,  "token": company})
     }).then((response)=>{
+      let id_conv = '';
+    
+      setIsLoanding(false);
+      if(props.user){
+        if(!getParamFromUrl("id_conv")){
+          id_conv = create_and_add_idconv();
+          add_conv_in_db(props.user.uid, id_conv, company);
+        }else{
+          id_conv = getParamFromUrl("id_conv");
+        }
+      }
 
+
+      /////////////////////////////////////////////////////
       let reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      let cuvFull = '';
+
       function readStream(){
-        console.log('se executa!!');
+        
         reader.read().then(({done, value})=>{
           if(done){
-            console.log('este gataaa')
+            console.log('este gataaa');
+            setArWithStream({mes : cuvFull, isFinal : true})
+            add_mess_in_db({
+              question: {mesaj: input_var, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
+              answer: {mesaj: cuvFull, tip_mesaj: 'raspuns', uid: props.user.uid, id_conversatie: id_conv, token: company}
+            })
           }else{
             let cuv =  decoder.decode(value, {stream: true});
-            console.log(cuv, '----------');
+            cuvFull += cuv;
+            setArWithStream({mes : cuvFull, isFinal : false})
             readStream();
           }
         });
       }
       readStream();
-    })
-
-    // axios.post(`${address_server_ai}/send_mes`, {
-    //   "context" : arMesaje.slice(-7),
-    //   "intrebare": input_var, 
-    //   "token": company
-    // }).then((data)=>{
-    //   setIsLoanding(false);
-    //   let id_conv = '';
-    //   if(props.user){
-    //     if(!getParamFromUrl("id_conv")){
-    //       id_conv = create_and_add_idconv();
-    //       add_conv_in_db(props.user.uid, id_conv, company);
-    //     }else{
-    //       id_conv = getParamFromUrl("id_conv");
-    //     }
-
-    //     add_mess_in_db({
-    //         question: {mesaj: input_var, tip_mesaj:"intrebare", uid: props.user.uid, id_conversatie: id_conv, token: company},
-    //         answer: {mesaj: data.data, tip_mesaj: 'raspuns', uid: props.user.uid, id_conversatie: id_conv, token: company}
-    //     })
-    //   }
-
-    //   setArMesaje((prev)=> {
-    //     let arNou = [];
-    //     prev.forEach((ob)=>{
-    //       if(ob.type === 'loading'){arNou.push({type:'raspuns', mes: data.data}); return};
-    //       arNou.push({type: ob.type, mes: ob.mes});
-    //     })
-    //     return [...arNou]});
-    // }).catch((err)=>{
-    //   console.log(err);
-    // })    
+    })  
   }
 
   
