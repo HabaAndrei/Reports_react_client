@@ -123,12 +123,16 @@ const Chat = (props) => {
       let ip  = await get_ip_address();
       if(ip){
         let rez_query = await manage_question_FU(ip);
-        if(!rez_query){alert('nu mai ai intrebari gratuite, fa ti cont!!!!!'); return}
+        console.log(rez_query);
+        if(!rez_query){ 
+          addNotification(props.setArNotifications, 'warning', 'Nu mai ai intrebari gratuite, creaza ti cont');
+          return;
+        }
       }else{
-        console.log('nu am putut sa luam ip-ul');
+        addNotification(props.setArNotifications, 'warning', 'Nu am putut face verificarea daca mai ai sau nu in trebari gratuite');
         return;
       }
-      return ;
+
     }
 
 
@@ -138,6 +142,7 @@ const Chat = (props) => {
     setArMesaje((prev)=>{
       return [...prev, {type: 'intrebare', mes: input_var}, {type: 'loading'}]
     })
+
 
     fetch(`${address_server_ai}/send_mes`, {
       method: 'POST',
